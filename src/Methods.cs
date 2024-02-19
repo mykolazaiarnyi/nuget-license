@@ -402,7 +402,14 @@ namespace NugetUtility
             // First use project.assets.json, if this option is enabled.
             if (_packageOptions.UseProjectAssetsJson)
             {
-                var assetsFile = Path.Combine(Path.GetDirectoryName(projectPath) ?? ".", "obj", "project.assets.json");
+                bool isSlnFile = _packageOptions.ProjectDirectory.EndsWith(".sln");
+                string artifactsDirectory = Path.GetDirectoryName(projectPath) ?? ".";
+
+                // Hack for .NET 8 solution, probably breaks for everything else.
+                if (isSlnFile)
+                    artifactsDirectory = Path.Combine(Path.GetDirectoryName(_packageOptions.ProjectDirectory) ?? ".", "artifacts");
+
+                var assetsFile = Path.Combine(artifactsDirectory, "obj", "project.assets.json");
                 if (!File.Exists(assetsFile))
                 {
                     WriteOutput(() => $"Cannot find {assetsFile}", logLevel: LogLevel.Warning);
