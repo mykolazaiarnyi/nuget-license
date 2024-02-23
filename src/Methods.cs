@@ -1062,7 +1062,23 @@ namespace NugetUtility
                                 outputStream = ConvertHtmlFileToText(outputStream, source);
                             }
                         }
+
+                        string copyright = string.Empty;
+                        if (info.Copyright.StartsWith("Copyright", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            copyright = info.Copyright;
+                        }
+                        else if (info.Copyright.StartsWith("©", StringComparison.InvariantCultureIgnoreCase) ||
+                            info.Copyright.StartsWith("(C)", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            copyright = "Copyright " + info.Copyright;
+                        } else
+                        {
+                            copyright = "Copyright © " + info.Copyright;
+                        }
+
                         using var fileStream = File.OpenWrite(outpath);
+                        await fileStream.WriteAsync(Encoding.UTF8.GetBytes(copyright + Environment.NewLine));
                         await outputStream.CopyToAsync(fileStream);
                         break;
                     }
